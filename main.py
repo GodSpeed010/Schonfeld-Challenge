@@ -49,20 +49,6 @@ def longest_common_substr(str1, str2, N, M):
 
 
 def main():
-    # row_index to priority
-    priorities = {
-        'root_symbol': 1,
-        'bbg': 2,
-        'symbol': 3,
-        'ric': 4,
-        'cusip': 5,
-        'isin': 6,
-        'bb_yellow': 7,
-        'bloomberg': 8,
-        'spn': 9,
-        'security_id': 10,
-        'sedol': 11
-    }
     heap = []
     data_path = input('Enter path to data csv: ')
     row_index = 0
