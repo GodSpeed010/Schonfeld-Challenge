@@ -7,7 +7,7 @@ when comparing query results for 2 different securities,
 if both securities have a street ID which has a full match with the query,
 then the order in the output for the full-match queries does not matter.
 '''
-
+# Schonfeld Street ID Challenge
 # The query on the data
 QUERY = "abc"
 
@@ -64,21 +64,18 @@ PRIORITIES = {
     'security_id': 10,
     'sedol': 11,
 }
-COLUMNS = ['cusip', 'sedol', 'isin', 'ric', 'bloomberg', 'bbg', 'symbol', 'root_symbol', 'bb_yellow', 'spn', ]
 
 
 def main():
     heap = []
     data_path = input('Enter path to data csv: ')
-    row_index = 0
 
     with open(data_path, 'r') as csvfile:
         datareader = csv.reader(csvfile)
-        next(datareader)  # Skip column title row
+        columns = next(datareader)[1:]  # Get list of column names
 
-        for row in datareader:
-            print('Processing Row', row_index)
-            row_index += 1
+        for x, row in enumerate(datareader):
+            print('Processing Row', x)
 
             # Longest substring match across all Street IDs for this security
             max_char_matches = 0
@@ -92,7 +89,7 @@ def main():
                 ch_matches = longest_common_substr(street_id.lower(), QUERY.lower(), len(street_id), len(QUERY))
                 if ch_matches > max_char_matches:
                     max_char_matches = ch_matches
-                    max_priority = PRIORITIES[COLUMNS[i]]
+                    max_priority = PRIORITIES[columns[i]]
 
                 # Assuming that the order of full matches in the output does not matter, breaking here would
                 # increase efficiency because this is a full-match, and no other Street ID for this row can have
@@ -110,9 +107,11 @@ def main():
 def print_output(heap):
     print(len(heap), 'results')
     # print out security for results, starting from 'most relevant'
-    for i in range(len(heap)):
-        node = heapq.heappop(heap)
-        print(f'{i}, security_id={node.security}, character_matches={node.char_matches}, priority_weight={node.priority_weight}')
+    with open('script_output.txt', 'w') as f:
+        for i in range(len(heap)):
+            node = heapq.heappop(heap)
+            print(f'{i}, security_id={node.security}, character_matches={node.char_matches}, priority_weight={node.priority_weight}')
+            f.write(f'{i}, security_id={node.security}, character_matches={node.char_matches}, priority_weight={node.priority_weight}')
 
 
 if __name__ == '__main__':
