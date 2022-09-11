@@ -1,7 +1,9 @@
 import heapq
 import csv
 
-'''Assumption made: When comparing query results for 2 different securities,
+'''
+Assumption made: The instructions were were not very clear to me about this small part. I made this script assuming that
+when comparing query results for 2 different securities,
 if both securities have a street ID which has a full match with the query,
 then the order in the output for the full-match queries does not matter.
 '''
@@ -48,6 +50,22 @@ def longest_common_substr(str1, str2, N, M):
     return mx
 
 
+PRIORITIES = {
+    'root_symbol': 1,
+    'bbg': 2,
+    'symbol': 3,
+    'ric': 4,
+    'cusip': 5,
+    'isin': 6,
+    'bb_yellow': 7,
+    'bloomberg': 8,
+    'spn': 9,
+    'security_id': 10,
+    'sedol': 11,
+}
+COLUMNS = ['cusip', 'sedol', 'isin', 'ric', 'bloomberg', 'bbg', 'symbol', 'root_symbol', 'bb_yellow', 'spn', ]
+
+
 def main():
     heap = []
     data_path = input('Enter path to data csv: ')
@@ -58,34 +76,32 @@ def main():
         next(datareader)  # Skip column title row
 
         for row in datareader:
-            print('Row', row_index)
+            print('Processing Row', row_index)
             row_index += 1
 
             # Longest substring match across all Street IDs for this security
             max_char_matches = 0
-            # The priority 'weight' of this security. Calculated by adding the weights for all columns that had
-            # any match for the query. Lower weight means greater priority.
-            priority_weight = 0
+            # The highest priority found in this row. Lower number means greater priority?
+            max_priority = 0
 
             # Iterate over all Street IDs
             for i, street_id in enumerate(row[1:]):
                 if street_id == '': continue
 
-                char_matches = longest_common_substr(street_id.lower(), QUERY.lower(), len(street_id), len(QUERY))
-                max_char_matches = max(max_char_matches, char_matches)
+                ch_matches = longest_common_substr(street_id.lower(), QUERY.lower(), len(street_id), len(QUERY))
+                if ch_matches > max_char_matches:
+                    max_char_matches = ch_matches
+                    max_priority = PRIORITIES[COLUMNS[i]]
 
-                # If there was any match
-                if char_matches > 0:
-                    priority_weight += i
-                    # Assuming that the order of full matches in the output does not matter, breaking here would
-                    # increase efficiency because this is a full-match, and no other Street ID for this row can have
-                    # a better match.
-                    if char_matches == len(QUERY): break
+                # Assuming that the order of full matches in the output does not matter, breaking here would
+                # increase efficiency because this is a full-match, and no other Street ID for this row can have
+                # a better match.
+                if ch_matches == len(QUERY): break
 
             # If there was any query match for this security, push to heap
             if max_char_matches > 0:
                 security_id = row[0]
-                heapq.heappush(heap, Node(security_id, max_char_matches, priority_weight))
+                heapq.heappush(heap, Node(security_id, max_char_matches, max_priority))
 
     print_output(heap)
 
@@ -94,7 +110,8 @@ def print_output(heap):
     print(len(heap), 'results')
     # print out security for results, starting from 'most relevant'
     for i in range(len(heap)):
-        print(i, heapq.heappop(heap))
+        node = heapq.heappop(heap)
+        print(f'{i}, security_id={node.security}, character_matches={node.char_matches}, priority_weight={node.priority_weight}\n')
 
 
 if __name__ == '__main__':
