@@ -8,6 +8,7 @@ if both securities have a street ID which has a full match with the query,
 then the order in the output for the full-match queries does not matter.
 '''
 # Schonfeld Street ID Challenge
+
 # The query on the data
 QUERY = "abc"
 
@@ -70,6 +71,12 @@ def main():
     heap = []
     data_path = input('Enter path to data csv: ')
 
+    perform_search(data_path, heap)
+
+    print_output(heap)
+
+
+def perform_search(data_path, heap):
     with open(data_path, 'r') as csvfile:
         datareader = csv.reader(csvfile)
         columns = next(datareader)[1:]  # Get list of column names
@@ -101,8 +108,6 @@ def main():
                 security_id = row[0]
                 heapq.heappush(heap, Node(security_id, max_char_matches, max_priority))
 
-    print_output(heap)
-
 
 def print_output(heap):
     print(len(heap), 'results')
@@ -111,7 +116,7 @@ def print_output(heap):
         for i in range(len(heap)):
             node = heapq.heappop(heap)
             print(f'{i}, security_id={node.security}, character_matches={node.char_matches}, priority_weight={node.priority_weight}')
-            f.write(f'{i}, security_id={node.security}, character_matches={node.char_matches}, priority_weight={node.priority_weight}')
+            f.write(f'{i}, security_id={node.security}, character_matches={node.char_matches}, priority_weight={node.priority_weight}\n')
 
 
 if __name__ == '__main__':
