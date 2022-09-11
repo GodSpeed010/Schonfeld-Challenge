@@ -8,6 +8,7 @@ if both securities have a street ID which has a full match with the query,
 then the order in the output for the full-match queries does not matter.
 '''
 
+# The query on the data
 QUERY = "abc"
 
 
@@ -111,7 +112,7 @@ def print_output(heap):
     # print out security for results, starting from 'most relevant'
     for i in range(len(heap)):
         node = heapq.heappop(heap)
-        print(f'{i}, security_id={node.security}, character_matches={node.char_matches}, priority_weight={node.priority_weight}\n')
+        print(f'{i}, security_id={node.security}, character_matches={node.char_matches}, priority_weight={node.priority_weight}')
 
 
 if __name__ == '__main__':
